@@ -1,16 +1,16 @@
-% CleCurExpRule - Standard and Modified Clenshaw-Curtis Rule
+% CleCurExpRule_vpa - Standard and Modified Clenshaw-Curtis Rule
 %
 % VPA precision version
 % 
 % Computes the integral:
 %
-%   int_0^b f(s) exp(k s) ds
+%   int_0^b f(s) exp(z s) ds
 %
 % Syntax:
 %
-%   integral = CleCurExpRule(fval, k, 0, b)
+%   integral = CleCurExpRule(fval, z, 0, b)
 %
-% ⚠ **THIS IS A NEW VERSION OF THE SUBROUTINE.** ⚠
+% ⚠ **THIS IS A NEW VERSION (2025) OF THE SUBROUTINE.** ⚠
 %
 % where `fval` is a COLUMN vector containing function values at:
 %
@@ -39,26 +39,29 @@
 % -------------------------------------------------------------------------
 % Matrix Input Support:
 %
-% `fval` can also be an `n × (m+1)` matrix, where each column represents 
+% `fval` can also be an `(m+1) x n` matrix, where each column represents 
 % function values for a different function. In this case, the function 
 % returns `n` integrals, one for each column.
 %
 % -------------------------------------------------------------------------
-% Error Estimation (for Odd m):
+% Error Estimation (for even m):
 %
-%   [integral, errorEst] = CleCurExpRule(fval, k, 0, b)
+%   [integral, errorEst] = CleCurExpRule(fval, z, 0, b)
 %
-% If `fval` is an `m × n` matrix and `m` is **odd**, the function also 
+% If `fval` is an `(m+1) × n` matrix and `m` is **even**, the function also 
 % returns `errorEst`, an estimate of the quadrature error. This is computed 
 % by comparing results from the full set of nodes with those obtained 
 % using the coarse mesh (`fval(1:2:end, :)`).
 %
 % **Limitations:**
-% - If `m` is even, `errorEst` is set to `NaN`, as error estimation is not 
+% - If `m` is odd, `errorEst` is set to `NaN`, as error estimation is not 
 %   supported in this case.
 %
 % This version employs MATLAB's Variable Precision Arithmetic (VPA) to
 % enhance numerical stability when computing highly oscillatory integrals.
+% As result, it is considerably slower than double precision implementation
+% and it must be used only for testing purposes. 
+% 
 %
 % -------------------------------------------------------------------------
 % For more information:
@@ -66,7 +69,7 @@
 %
 % Author: Victor Dominguez
 % Contact: victor.dominguez@unavarra.es
-% Date: 05 March 2025
+% Date: 15th Nov 2025
 % -------------------------------------------------------------------------
 %
 % Copyright (C) 2025 Victor Dominguez
@@ -84,19 +87,20 @@
 
 
 function [integral, ErrEst]= CleCurExpRule_vpa(fval,z,b,varargin)
-op='CleCu'; %Clenshaw-Curtis rule
+op='CleCu'; %Clenshaw-Curtis rule by default
 
 
 if nargin>3 && varargin{1}==2
     op='Fejer';
 end
 [m,n] = size(fval);
-m = m-1;
+m = m-1; % m+1 nodes
 integral = sym(zeros(1,n));
 znew = z*b/2;
 
 if real(znew)>20
-    warning('k in the reference interval [0,2] is greater than 20')
+    warning('z in the reference interval [0,2] is greater than 20')
+    warning('The integral is expected to exponentially large')
 end
 
 
@@ -115,7 +119,7 @@ if abs(double(znew))<1    % Classical rule
     w(1:2:mEnd)=2./(1-(0:2:mEnd).^2).';
     w = sym(w(:)); 
     w2 = w(1:mEst+1);
-    if op == 'CleCu'
+    if strcmp(op,'CleCu')
         xi = cos(sym((0:m)/m)*sym(pi)).';
         w  = idctI_vpa(w);
         w2 = idctI_vpa(w2);
@@ -127,7 +131,7 @@ if abs(double(znew))<1    % Classical rule
         w  = idctII_vpa(w);
         w2 = idctII_vpa(w2);
     end
-    fval = fval.* (exp(znew*(xi+1))*ones(1,n));
+    fval = fval .* exp(znew*(xi+1));
    
 
 else
@@ -147,12 +151,12 @@ else
 
 
 end 
-integral= w.'*fval*b/2;
-ErrEst=nan*integral;
+integral = w.'*fval*b/2;
+ErrEst = nan*integral;
 if mod(m/2,1)==0 % We can compute an error estimate
 
-    integral2= w2.'*fval(1:2:end,:)*b/2;
-    ErrEst=abs(integral-integral2);
+    integral2 =  w2.'*fval(1:2:end,:)*b/2;
+    ErrEst    = abs(integral-integral2);
 end
 
 return

@@ -55,7 +55,7 @@ for n = ns
 
     t = linspace(0,pi,n+1);  t = cos(t);
     y = g(t); 
-    [intN, ErrEst]= CleCurExpRule(y.',z,2);
+    [intN, ErrEst]= CleCurExpRule(y.',z);
     res = [res; [intex intN abs(intex-intN)]]; 
    % disp(res(end,:))
    

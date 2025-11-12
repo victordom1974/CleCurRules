@@ -36,7 +36,7 @@ originalDir = pwd;
 parentDir = fullfile(originalDir, '..');
 addpath(parentDir); 
 
-rehacer =0
+rehacer =1
 if rehacer
     n = 256;
     zs0 = -40;

@@ -23,21 +23,21 @@
 %
 % Author: Victor Dominguez
 % Contact: victor.dominguez@unavarra.es
-% Date: March 2025
+% Date: November 2025
 % -------------------------------------------------------------------------
 
 function Y=idctI_vpa(y)
 
 if size(y,1)==1
-    Y=y;
-    y=y(:);
+    Y = y;
+    y = y(:);
 else
-    Y=y;
+    Y = y;
 end
-m=size(y,1);
+m = size(y,1);
 
-y=[y; y(end-1:-1:2,:)];
-z=mifft_vpa(y)/(m-1);
+y = [y; y(end-1:-1:2,:)];
+z = ifft_vpa(y)/(m-1);
 
 % Test if y is real. If so, consider only the real part of FFT
 ind = ~any(imag(double(y)));
