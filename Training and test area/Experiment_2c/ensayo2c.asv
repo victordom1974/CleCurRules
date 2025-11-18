@@ -1,0 +1,87 @@
+% ENSAYO2C
+%
+% res = ensayo(z, alphas, n)
+%
+% Compute the integral
+%
+%    \int_0^2 (s(2-s))^{\alpha} \exp(z s)\,{\rm d}s
+%
+% whose exact value is
+%
+%    double_factorial(2\alpha) * exp(z) * pi * besseli(\alpha + 1/2, z) * z^{-1/2 - \alpha}.
+%
+% The approximation is obtained using an n-point Product Cle-Cur quad rule.
+% Valid values of alpha are 1/2, 3/2, 5/2, ...
+%
+% INPUT: 
+%  z     : 
+%  alpha : 
+%  ns    : number of quadrature points (ns+1 is used actually)
+% 
+% OUTPUT: 
+%  res   : (for result) a matrix with the following structure
+%        :  res(1
+% 
+% Assumptions:
+%   *  \Re z \le 0   (or z with small positive real part)
+%
+% Output:
+%   res is either a matrix or a cell array, depending on alphas:
+%
+%   • If alpha is a scalar:
+%         res(1,:) = [alpha, z, exact_value]
+%         Each subsequent row contains:
+%             n,  approx_integral,  error,  abs(error)
+%
+%   • If alpha is a vector:
+%         res is a cell array where res{j} contains the results
+%         corresponding to alpha(j), with the same structure as above.
+%
+% Last update: November 2025
+
+
+function res = ensayo2c(z,alphas,ns)
+p = cd;
+cd ..
+addpath(cd);
+cd(p)
+
+
+res = {};
+for alpha = alphas
+    g = @(t) (t.*(2-t)).^alpha ;
+
+    intex =double_factorial(2*alpha)*pi*exp(imag(z)*1i)...
+        *besseli(alpha+1/2,z,1)*z^(-1/2-alpha);
+    res{end+1}= [alpha z intex];
+
+    for n = ns
+
+        t = linspace(0,pi,n+1);  t =1+ cos(t);
+        y = g(t);
+        [intN, ErrEst]= CleCurExpRule(y.',z);
+        res{end}(end+1,1:4) = [n   intN  (intN-intex) abs(intN-intex)]  ;
+
+        % disp(res(end,:))
+    end
+end
+
+if length(res)==1
+    res = res{1};
+end
+return
+
+function y = pn(n,x)
+% Polinomio de legendre
+
+y = legendre(n,x);
+y = y(1,:);
+
+
+function df = double_factorial(n)
+if n == 0 || n == 1
+    df = 1;
+else
+    df = prod(n:-2:1); % Producto de n, (n-2), (n-4), ..., 1 o 2
+end
+

@@ -16,7 +16,7 @@
 % Uses an `M x M` linear system to compute the approximation. If `M` is
 % not specified, it is determined adaptively according to:
 %
-%   M = 2 * ceil(log(5 / (1e-16 * abs(z) * r)) / log(1 + r)) + 2;
+%   M = 2 * ceil(log(3 / (1e-16* r)) / log(1 + r)) + 2;
 %
 % where `r` is a parameter controlling the precision of the approximation.
 % (r = 1.8 is taken here)
@@ -27,7 +27,7 @@
 %
 % Author: Victor Dominguez
 % Contact: victor.dominguez@unavarra.es
-% Date: 05 March 2025
+% Date: 17 November 2025
 % -------------------------------------------------------------------------
 %
 % Copyright (C) 2025 Victor Dominguez
@@ -57,7 +57,7 @@ end
 
 r = 1.8;
 if isempty(m)
-    m  = 2*ceil(log(5/(1e-16*abs(z)*r))/log(1+r))+2; 
+    m  = 2*ceil(log(3/(1e-16*r))/log(1+r))+2; 
 end
 
 

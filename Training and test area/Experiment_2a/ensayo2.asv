@@ -1,0 +1,67 @@
+% Primer ensayo
+% res = ensayo(z,ns)
+% 
+% devuelve en res
+% 
+% integral(@(t)  pn(ns,t).*exp(z*(t+1)),-1,1) 
+% 
+% la paroximación dada por la regla de cuadratura con n+1 puntos y el error.
+%
+% IMPORTANTE: Im(z)<0
+%
+% cuyo valor exacto es
+%
+%  (-1i)^(n)*(2*pi/(1i*z))^(1/2)*exp(z)*besselj(n+1/2,1i*z)
+%
+% ns puede ser una vector de n's
+% 
+% Feb 2025
+
+function res = ensayo2(z,alphas,n)
+p = cd;
+cd ..
+addpath(cd);
+cd(p)
+
+%res = integral(@(t)  pn(n,t).*exp(z*(t+1)),-1,1) - ...
+%    (1i)^(n)*(2*pi/(1i*z))^(1/2)*exp(z)*besselj(n+1/2,-1i*z);
+
+% for n =1:10
+%  [ integral(@(t)  pn(n,t).*exp(z*(t+1)),-1,1) ,
+%     (-1i)^(n)*(2*pi/(1i*z))^(1/2)*exp(z)*besselj(n+1/2,1i*z)]
+% end
+% for n =1:10
+%  [ integral(@(t)  pn(n,t).*exp(z*(t+1)),-1,1) ,
+%     (-1i)^(n)*(2*pi/(1i*z))^(1/2)*exp(1i*imag(z))*besselj(n+1/2,1i*z,1)]
+% % end
+% g2[n_, z_] = (-I)^n*(2*Pi/(I*z))^(1/2)*Exp[z]*BesselJ[n + 1/2, I*z]
+res = []; 
+for alpha = alphas
+    g = @(t) (t.*(2-t)).^alpha ;
+
+    intex =2*alpha* exp(z)*pi*besseli(alpha+1/2,z)*z^(-1/2-alpha);
+
+    t = linspace(0,pi,n+1);  t =1+ cos(t);
+    y = g(t);
+    [intN, ErrEst]= CleCurExpRule(y.',z,2);
+    res = [res; [intex intN abs(intex-intN)]]; 
+   % disp(res(end,:))
+   
+end
+
+return
+
+function y = pn(n,x)
+% Polinomio de legendre
+
+y = legendre(n,x);
+y = y(1,:);
+
+
+function df = double_factorial(n)
+    if n == 0 || n == 1
+        df = 1;
+    else
+        df = prod(n:-2:1); % Producto de n, (n-2), (n-4), ..., 1 o 2
+    end
+end

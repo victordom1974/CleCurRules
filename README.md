@@ -44,7 +44,7 @@ Some script files for testing purposes.
 
 ## Usage 
 Several examples: the integral
-$$ I = \int_0^2 \frac{cos(5\pi x)}{4+\sin(4 \pi x)}\exp((-20+15i) s) ds $$
+$$ I = \int_0^2 \frac{\cos(5\pi x)}{4+\sin(4 \pi x)}\exp((-20+15i) s) ds $$
 
 can be (numerically) computed with 
 
