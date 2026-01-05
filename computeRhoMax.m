@@ -1,17 +1,17 @@
-%  [rhoM, m] = computeRhoMax(z, m0)
+%  [rhoM, mc] = computeRhoMax(z)
 %
 % Computes the integral:
 %
-%   rhoM = int_0^2 U_{m-1}(x - 1) * exp(z * x) dx
+%   rhoM = int_0^2 U_{mc-1}(x - 1) * exp(z * x) dx
 %
-% where `m` is chosen to satisfy n > 1.8 * |z|.
+% where `mc` is chosen to satisfy n > 1.8 * |z|. The choice of `mc` is 
+% guided by numerical stability considerations.
 %
-% [rhoM, m] = computeRhoMax(z, m0)
+% [rhoM, mc] = computeRhoMax(z, m0)
 %
-% Ensures that `m` is greater than `n0`. The choice of `m` is guided by
-% numerical stability considerations.
+% Ensures that `mc` is greater than `m0`. 
 %
-% [rhoM, m] = computeRhoMax(z, m0, M)
+% [rhoM, mc] = computeRhoMax(z, m0, M)
 %
 % Uses an `M x M` linear system to compute the approximation. If `M` is
 % not specified, it is determined adaptively according to:
@@ -27,10 +27,10 @@
 %
 % Author: Victor Dominguez
 % Contact: victor.dominguez@unavarra.es
-% Date: 17 November 2025
+% Date: 05 January 2026
 % -------------------------------------------------------------------------
 %
-% Copyright (C) 2025 Victor Dominguez
+% Copyright (C) 2026 Victor Dominguez
 %
 % Permission is hereby granted, free of charge, to any person obtaining a 
 % copy of this software and associated documentation files (the "Software"),
@@ -61,7 +61,7 @@ if isempty(m)
 end
 
 
-m1 = double(floor(max([1.2*abs(z)+2,2*8,m0+4])));
+m1 = double(ceil(max([1.2*abs(z)+2,2*8,m0+4]/2)))*2;
 m2 = m1 +m; 
 ms = sqrt(m1:m2).';
 msinv = 1./ms;
@@ -88,6 +88,5 @@ rhoM = z/2*1./sqrt(mc)*y0((m2-m1)/2);
 % Alternative 
 % Matrix2 = spdiags(  tridiagCompressed,-1:1,Msize,Msize);  
 % y2 = z/2* (ms(2:end).\(Matrix2\rhs) ); 
-% rhoM = y2((m2-m1)/2)
-
+% rhoM = y2((m2-m1)/2) 
 end
