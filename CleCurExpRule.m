@@ -130,16 +130,20 @@ end
 % HANDLE FUNCTION INPUT (fval is a function handle)
 % ---------------------------------------------------------------------
 if isa(fval, 'function_handle')
-
-    x = b/2 * (1 + cos((0:m) * pi/m));
-    x = x(:);
+    if strcmp(op,'CleCu')
+        xi = b/2 * (1 + cos((0:m) * pi/m));
+        xi = xi(:);
+    else
+        xi = b/2*(1+cos((0.5:(m+0.5))*pi/(m+1)));
+        xi = xi(:);
+    end
 
     % Vectorized evaluation (preferred)
     try
-        fval = fval(x);
+        fval = fval(xi);
     catch
         % Non-vectorized 
-        fval = arrayfun(fval, x);
+        fval = arrayfun(fval, xi);
     end
 
 elseif isvector(fval)
@@ -177,6 +181,7 @@ mHalf = ceil(m/2);
 % ---------------------------------------------------------------------
 % SMALL |z| → CLASSICAL RULE
 % ---------------------------------------------------------------------
+
 if abs(znew) < 1
 
     % Define highest odd index
@@ -191,13 +196,13 @@ if abs(znew) < 1
     w(3:2:mEnd) = 2./(1 - (2:2:mEnd).^2);
 
     w2 = w(1:mHalf+1);
-
+   
     if strcmp(op,'CleCu')
+     
         xi = cos((0:m)*pi/m).';
-
-        w  = idctI(w);
+        w  = idctI(w);        
         w2 = idctI(w2);
-
+     
         % endpoint corrections
         w([1 end])  = 0.5 * w([1 end]);
         w2([1 end]) = 0.5 * w2([1 end]);
@@ -205,11 +210,11 @@ if abs(znew) < 1
     else   % Fejér
         xi = cos((0.5:(m+0.5))*pi/(m+1)).';
         w  = idctII(w);
+        
         w2 = idctII(w2);
-    end
-
+    end 
     fval = fval .* exp(znew*(xi+1));
-
+     
 % ---------------------------------------------------------------------
 % LARGE |z| → MODIFIED WEIGHTS
 % ---------------------------------------------------------------------
@@ -245,5 +250,6 @@ if strcmp(op,'CleCu') && mod(m,2)==0
     integral2 = (w2.' * fval(1:2:end,:)) * b/2;
     ErrEst    =  integral - integral2;
 end
+ 
 
 end
