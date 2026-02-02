@@ -13,9 +13,9 @@ clearvars
 
 %% PARAMETERS
 f      = @(x) cos(6*x)-1i*sin(3*x);
-z      = -4 + 5i;
+z      = -14 + 25i;
 b      = pi;
-nNodes = 36;  % Set nNodes even
+nNodes =32;  % Set nNodes even
 
 %% Exact integral (reference)
 syms x
@@ -35,13 +35,13 @@ t = (cos(pi*(0:nNodes)/nNodes) + 1).' * b/2;  % must be a column vector
 ints = zeros(1,4);
 errs = nan+zeros(1,4);
 
-ints(1) = CleCurExpRule(f(t), z, 'EndPoint', b);
+[ints(1), errs(1)] = CleCurExpRule(f(t), z, 'EndPoint', b);
 
 
 %% --------------------------------------------------------------
 % Method 2: Provide function handle, automatic node generation
 %% --------------------------------------------------------------
-ints(2) = CleCurExpRule(f, z, ...
+[ints(2), errs(2)] =CleCurExpRule(f, z, ...
     'NumberOfNodes', nNodes, ...
     'EndPoint', b);
 
@@ -98,6 +98,7 @@ fvec = @(x) [5./(3+cos(3*x)),  exp(-2*cos(2*x))];
     'NumberOfNodes', nNodes, ...
     'EndPoint', b);
 
+% Fejer rules: no error estimate
 [ints_vec(end+1,:), errs_vec(end+1,:)] = CleCurExpRule(fvec(t), z, ...
     'NumberOfNodes', nNodes, ...
     'EndPoint', b,'FejerRule',1);

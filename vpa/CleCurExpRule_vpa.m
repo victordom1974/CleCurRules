@@ -69,10 +69,10 @@
 %
 % Author: Victor Dominguez
 % Contact: victor.dominguez@unavarra.es
-% Date: 15th Nov 2025
+% Date: 2nd Feb 2025
 % -------------------------------------------------------------------------
 %
-% Copyright (C) 2025 Victor Dominguez
+% Copyright (C) 2026 Victor Dominguez
 %
 % Permission is hereby granted, free of charge, to any person obtaining a 
 % copy of this software and associated documentation files (the "Software"),
@@ -86,16 +86,104 @@
 % -------------------------------------------------------------------------
 
 
-function [integral, ErrEst]= CleCurExpRule_vpa(fval,z,b,varargin)
+function [integral, ErrEst]= CleCurExpRule_vpa(fval,z,varargin)
+
+legacyUsed = ~isempty(varargin) && ...
+             ~ischar(varargin{1}) && ...
+             ~isstring(varargin{1});
+
+
 op='CleCu'; %Clenshaw-Curtis rule by default
 
 
-if nargin>3 && varargin{1}==2
-    op='Fejer';
+if legacyUsed
+    % Legacy syntax requires b
+    if numel(varargin) == 1
+        % CleCurExpRule_vpa(fval, z, b)
+        varargin = {'EndPoint', varargin{1}};
+
+    elseif numel(varargin) == 2 && isnumeric(varargin{2}) && isscalar(varargin{2}) && varargin{2} == 2
+        % CleCurExpRule_vpa(fval, z, b, 2)  -> Fejér rule
+        varargin = {'EndPoint', varargin{1}, 'FejerRule', true};
+
+    else
+        error('CleCurExpRule_vpa:InvalidLegacySyntax', ...
+              'Legacy syntax must be CleCurExpRule_vpa(f,z,b) or CleCurExpRule_vpa(f,z,b,2).');
+    end
 end
+
+% ---------------------------------------------------------------------
+% INPUT PARSER (VPA-safe)
+% ---------------------------------------------------------------------
+p = inputParser;
+
+addParameter(p, 'EndPoint', sym(2), ...
+    @(x) (isnumeric(x) || isa(x,'sym')) && isscalar(x));
+
+addParameter(p, 'NumberOfNodes', 16, ...
+    @(x) isnumeric(x) && isscalar(x) && x >= 2 && mod(x,1) == 0);
+
+addParameter(p, 'FejerRule', false, ...
+    @(x) islogical(x) || isnumeric(x));
+
+try
+    parse(p, varargin{:});
+catch ME
+    error('CleCurExpRule_vpa:InvalidArgument', ...
+          'Invalid input: %s', ME.message);
+end
+
+if legacyUsed
+   % warning('CleCurExpRule_vpa:LegacySyntax', ...
+   %     'Legacy positional syntax detected. Please use name-value arguments.');
+end
+
+% ---------------------------------------------------------------------
+% Parsed parameters
+% ---------------------------------------------------------------------
+b      = vpa(p.Results.EndPoint);
+m     = p.Results.NumberOfNodes;
+
+ 
+
+
+
+
+if p.Results.FejerRule
+    op='Fejer';
+end 
+if isa(fval, 'function_handle')
+    if strcmp(op,'CleCu')
+        xi = b/2 * (1 + cos((0:m) * pi/m));
+        xi = xi(:);
+    else
+        xi = b/2*(1+cos((0.5:(m+0.5))*pi/(m+1)));
+        xi = xi(:);
+    end
+
+    % Vectorized evaluation (preferred)
+    try
+        fval = fval(xi);
+    catch
+        % Non-vectorized 
+        fval = arrayfun(fval, xi);
+    end
+
+elseif isvector(fval)
+    fval = fval(:); % column
+
+elseif ismatrix(fval)
+    % OK
+
+else
+    error('CleCurExpRule:InvalidFval', ...
+          'fval must be a vector, a (m+1)xN matrix, or a function handle.');
+end
+
+
+
 [m,n] = size(fval);
 m = m-1; % m+1 nodes
-integral = sym(zeros(1,n));
 znew = z*b/2;
 
 if real(znew)>20

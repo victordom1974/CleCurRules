@@ -13,9 +13,10 @@ clearvars
 
 %% PARAMETERS
 f      = @(x) cos(6*x)-1i*sin(3*x);
-z      = 0.3;
+%z      = 0.3; % z can be possitive, but not large (to avoid overflow)
+z      = -6+15i;
 b      = pi;
-nNodes = 20;  % Set nNodes even for error estimates for the CleCur rule
+nNodes = 40;  % Set nNodes even for error estimates for the CleCur rule
 
 %% Exact integral (reference)
 syms x

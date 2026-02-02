@@ -1,11 +1,11 @@
-% January 2025
+% January 2026
 
-rehacer =1;
+recompute =1;
 try
     % To generate the tikz pictures, navigate to the folder
     addpath('matlab2tikz-master/src')
 end
-if rehacer
+if recompute
     n = 256;
     zs0 = -40;
     zs =   [0 1/12 1/6 1/4];
@@ -18,7 +18,7 @@ if rehacer
     w_nonstab = [];
     w_stab = [];
     w_vpa_stab = [];
-    w_vpa_nonstab =[]
+    w_vpa_nonstab =[];
 
     for j = 1:length(zs)
         z = zs0*exp(2*pi*1i*sym(zs(j)));
@@ -79,10 +79,10 @@ end
 
 % Plotting
 figure(2)
-titles{1} = "$z = - 40\pi $"
-titles{2} = "$z = - 40\pi\exp( {\rm i}\pi/3) $"
-titles{3} = "$z = - 40\pi\exp( 2{\rm i}\pi/3)$ "
-titles{4} = "$z = - 40\pi {\rm i}$ "
+titles{1} = "$z = - 40\pi $";
+titles{2} = "$z = - 40\pi\exp( {\rm i}\pi/3) $";
+titles{3} = "$z = - 40\pi\exp( 2{\rm i}\pi/3)$ ";
+titles{4} = "$z = - 40\pi {\rm i}$ ";
 
 sgtitle(['|\rho_{vpa\_stab}-\rho_{nonstab}| & |\rho_{vpa\_stab}-\rho_{vpa\_nonstab}|']);
 for j = 1:4
@@ -119,10 +119,10 @@ end
 
 % Plotting
 figure(3)
-titles{1} = "$z = - 40\pi $"
-titles{2} = "$z = - 40\pi\exp( {\rm i}\pi/3) $"
-titles{3} = "$z = - 40\pi\exp( 2{\rm i}\pi/3)$ "
-titles{4} = "$z = - 40\pi {\rm i}$ "
+titles{1} = "$z = - 40\pi $";
+titles{2} = "$z = - 40\pi\exp( {\rm i}\pi/3) $";
+titles{3} = "$z = - 40\pi\exp( 2{\rm i}\pi/3)$ ";
+titles{4} = "$z = - 40\pi {\rm i}$ ";
 
 sgtitle('|\rho_{vpa\_stab}-\rho_{stab}|');
 for j = 1:4
@@ -162,10 +162,10 @@ end
 
 % Plotting
 figure(4)
-titles{1} = "$z = - 40\pi $"
-titles{2} = "$z = - 40\pi\exp( {\rm i}\pi/3) $"
-titles{3} = "$z = - 40\pi\exp( 2{\rm i}\pi/3)$ "
-titles{4} = "$z = - 40\pi \rm i$ "
+titles{1} = "$z = - 40\pi $";
+titles{2} = "$z = - 40\pi\exp( {\rm i}\pi/3) $";
+titles{3} = "$z = - 40\pi\exp( 2{\rm i}\pi/3)$ ";
+titles{4} = "$z = - 40\pi \rm i$ ";
 
 sgtitle('|\rho_{stab}-\rho_{vpa\_nonstab}|');
 for j = 1:4
